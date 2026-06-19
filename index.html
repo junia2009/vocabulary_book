@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>単語帳 - Vocabulary Book</title>
+  <meta name="description" content="科目を問わず使える汎用フラッシュカード単語帳。学習進捗と正誤を記録できます。" />
+  <meta name="theme-color" content="#4f46e5" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" type="image/png" href="icons/favicon-32.png" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="app-header">
+    <button id="backBtn" class="icon-btn" hidden aria-label="戻る">←</button>
+    <h1 id="appTitle" class="app-title">📚 単語帳</h1>
+    <button id="menuToggle" class="icon-btn" aria-label="メニュー">⋮</button>
+  </header>
+
+  <main id="main">
+    <!-- ============ デッキ一覧 ============ -->
+    <section id="view-decks" class="view">
+      <div class="toolbar">
+        <input id="deckSearch" class="search" type="search" placeholder="単語帳を検索…" aria-label="単語帳を検索" />
+        <button id="addDeckBtn" class="btn btn-primary">＋ 新しい単語帳</button>
+      </div>
+      <div id="deckList" class="deck-list"></div>
+      <p id="deckEmpty" class="empty-state" hidden>
+        まだ単語帳がありません。<br />「＋ 新しい単語帳」から作成しましょう。
+      </p>
+    </section>
+
+    <!-- ============ デッキ詳細（カード管理） ============ -->
+    <section id="view-deck" class="view" hidden>
+      <div class="deck-summary" id="deckSummary"></div>
+      <div class="toolbar">
+        <button id="studyBtn" class="btn btn-primary">▶ 学習する</button>
+        <button id="addCardBtn" class="btn">＋ 単語を追加</button>
+        <div class="spacer"></div>
+        <button id="deckMenuBtn" class="btn btn-ghost">⚙ 設定</button>
+      </div>
+      <input id="cardSearch" class="search" type="search" placeholder="単語を検索…" aria-label="単語を検索" />
+      <div id="cardList" class="card-list"></div>
+      <p id="cardEmpty" class="empty-state" hidden>
+        まだ単語がありません。<br />「＋ 単語を追加」または設定からCSVを取り込みましょう。
+      </p>
+    </section>
+
+    <!-- ============ 学習モード ============ -->
+    <section id="view-study" class="view study-view" hidden>
+      <div class="study-top">
+        <div class="progress-track"><div id="studyProgressBar" class="progress-bar"></div></div>
+        <span id="studyCounter" class="study-counter">0 / 0</span>
+      </div>
+      <div id="flashcard" class="flashcard" tabindex="0" role="button" aria-label="カードをめくる">
+        <div class="flashcard-inner">
+          <div class="flashcard-face flashcard-front">
+            <span class="face-label">表</span>
+            <p id="cardFront" class="face-text"></p>
+            <span class="tap-hint">タップ／スペースでめくる</span>
+          </div>
+          <div class="flashcard-face flashcard-back">
+            <span class="face-label">裏</span>
+            <p id="cardBack" class="face-text"></p>
+          </div>
+        </div>
+      </div>
+      <div class="study-actions">
+        <button id="markWrongBtn" class="btn btn-wrong">✗ まだ</button>
+        <button id="flipBtn" class="btn btn-flip">⟳ めくる</button>
+        <button id="markRightBtn" class="btn btn-right">✓ 覚えた</button>
+      </div>
+      <div class="study-result" id="studyResult" hidden>
+        <h2>お疲れさまでした！</h2>
+        <p id="studyResultText"></p>
+        <div class="result-actions">
+          <button id="restartWrongBtn" class="btn btn-primary" hidden>間違えた単語だけ復習</button>
+          <button id="restartAllBtn" class="btn">もう一度すべて</button>
+          <button id="backToDeckBtn" class="btn btn-ghost">単語帳に戻る</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============ モーダル ============ -->
+  <div id="modalRoot" class="modal-root" hidden>
+    <div class="modal-backdrop" data-close></div>
+    <div class="modal" role="dialog" aria-modal="true">
+      <div id="modalContent"></div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" hidden></div>
+
+  <script src="storage.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
