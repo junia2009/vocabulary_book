@@ -26,6 +26,9 @@
 
 * { box-sizing: border-box; }
 
+/* hidden 属性は常に最優先で非表示にする（display を持つ .view / .modal-root 対策） */
+[hidden] { display: none !important; }
+
 html, body {
   margin: 0;
   padding: 0;
