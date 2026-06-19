@@ -38,12 +38,15 @@ photosynthesis,光合成,植物が光からエネルギーを作る働き
 
 ### 方法 A: GitHub Pages（おすすめ・無料）
 
-1. このリポジトリを GitHub に push します。
-2. リポジトリの **Settings → Pages** を開き、**Source** を「**GitHub Actions**」に設定します。
-3. `main` ブランチへ push すると、同梱の `.github/workflows/deploy-pages.yml` が自動でサイトを公開します。
-4. 表示された URL（例: `https://<ユーザー名>.github.io/vocabulary_book/`）にアクセスして利用します。
+`main` ブランチへ push（マージ）するだけで自動公開されます。同梱の
+`.github/workflows/deploy-pages.yml` が **GitHub Pages の有効化からデプロイまで自動**で行うため、
+リポジトリ設定の手動変更は不要です（`actions/configure-pages` の `enablement: true` による）。
 
-> 手動で済ませたい場合は、Settings → Pages の Source を「Deploy from a branch」にして `main` / `(root)` を選ぶだけでも公開できます。
+1. `main` へマージ（または push）する。
+2. **Actions** タブで「Deploy to GitHub Pages」ワークフローの完了を待つ。
+3. 表示された URL（例: `https://<ユーザー名>.github.io/vocabulary_book/`）にアクセスして利用する。
+
+> 公開URLは Actions の実行結果、または **Settings → Pages** でも確認できます。
 
 ### 方法 B: Firebase Hosting
 
