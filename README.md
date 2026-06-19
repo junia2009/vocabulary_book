@@ -38,15 +38,24 @@ photosynthesis,光合成,植物が光からエネルギーを作る働き
 
 ### 方法 A: GitHub Pages（おすすめ・無料）
 
-`main` ブランチへ push（マージ）するだけで自動公開されます。同梱の
-`.github/workflows/deploy-pages.yml` が **GitHub Pages の有効化からデプロイまで自動**で行うため、
-リポジトリ設定の手動変更は不要です（`actions/configure-pages` の `enablement: true` による）。
+**初回だけ** GitHub Pages を有効化する操作が必要です（GitHub の仕様上、これは自動化できません）。
+一度有効化すれば、**以降は `main` への push／マージだけで自動公開**されます。
 
-1. `main` へマージ（または push）する。
-2. **Actions** タブで「Deploy to GitHub Pages」ワークフローの完了を待つ。
-3. 表示された URL（例: `https://<ユーザー名>.github.io/vocabulary_book/`）にアクセスして利用する。
+#### A-1. ブランチから公開（最も簡単・ワークフロー不要）
 
-> 公開URLは Actions の実行結果、または **Settings → Pages** でも確認できます。
+1. リポジトリの **Settings → Pages** を開く。
+2. **Source** で「**Deploy from a branch**」を選び、Branch を **`main`** / **`/ (root)`** にして **Save**。
+3. 数十秒後、`https://<ユーザー名>.github.io/vocabulary_book/` で公開されます。
+   以降は `main` に push するたびに自動で再公開されます。
+
+#### A-2. GitHub Actions で公開（同梱ワークフローを使う）
+
+1. **Settings → Pages → Source** で「**GitHub Actions**」を選ぶ。
+2. `main` へ push すると、同梱の `.github/workflows/deploy-pages.yml` が自動でビルド・公開します。
+3. **Actions** タブでワークフロー完了後、表示URLにアクセス。
+
+> どちらも初回の有効化だけ手動で、その後は main へのマージで自動公開されます。
+> 迷ったら **A-1** が簡単です。
 
 ### 方法 B: Firebase Hosting
 
