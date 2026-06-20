@@ -717,9 +717,11 @@
 
   function openLibrary() {
     const presets = (typeof PRESETS !== 'undefined' ? PRESETS : []);
+    const secDecks = (typeof SEC_DECKS !== 'undefined' ? SEC_DECKS : []);
     const wordbank = (typeof WORDBANK !== 'undefined' ? WORDBANK : []);
-    const all = presets.concat(wordbank);
+    const all = presets.concat(secDecks, wordbank);
     const wbWords = wordbank.reduce((n, d) => n + d.cards.length, 0);
+    const secWords = secDecks.reduce((n, d) => n + d.cards.length, 0);
 
     const item = (p) => `
       <button class="lib-item" data-preset="${p.id}">
@@ -737,6 +739,7 @@
     const html = `
       <h2 class="modal-title">ライブラリ</h2>
       <p class="modal-text">タップで単語帳に追加。追加後は自由に編集できます。</p>
+      ${secDecks.length ? section('情報処理安全確保支援士 — 章別', `全${secWords}語`, secDecks) : ''}
       ${presets.length ? section('テーマ別', '', presets) : ''}
       ${wordbank.length ? section('英単語 — 頻度順', `${wbWords}語を500語ずつ収録`, wordbank) : ''}
       <div class="modal-actions"><button class="btn btn-primary" data-close>閉じる</button></div>`;
