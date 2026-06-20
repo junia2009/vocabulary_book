@@ -62,7 +62,7 @@
     const next = order[(order.indexOf(cur) + 1) % order.length];
     Store.updateSettings({ theme: next });
     applyTheme(next);
-    toast({ auto: '🌗 自動（端末設定に追従）', light: '☀️ ライト', dark: '🌙 ダーク' }[next]);
+    toast({ auto: '自動（端末設定に追従）', light: 'ライト', dark: 'ダーク' }[next]);
   }
 
   // ---------- 状態 ----------
@@ -81,7 +81,7 @@
     $('#backBtn').hidden = name === 'decks';
     $('#statsBtn').hidden = name === 'study' || name === 'stats';
     $('#menuToggle').hidden = name === 'study' || name === 'stats';
-    const titles = { decks: '📚 単語帳', deck: '📖 単語一覧', study: '🧠 学習中', stats: '📊 学習統計' };
+    const titles = { decks: '単語帳', deck: '単語一覧', study: '学習', stats: '学習統計' };
     $('#appTitle').textContent = titles[name] || '単語帳';
     window.scrollTo(0, 0);
   }
@@ -140,7 +140,7 @@
         全 ${p.total} 語 ・ 覚えた ${p.known} ・ 学習中 ${p.learning} ・ 未学習 ${p.new}
         <strong>（達成 ${p.pct}%）</strong>
       </p>
-      ${p.due > 0 ? `<p class="due-line">🔔 今日の復習：<strong>${p.due}</strong> 語</p>` : ''}`;
+      ${p.due > 0 ? `<p class="due-line">今日の復習　<strong>${p.due}</strong> 語</p>` : ''}`;
 
     const q = filter.trim().toLowerCase();
     let cards = deck.cards;
@@ -160,20 +160,21 @@
         const s = c.stats || {};
         return `
         <div class="word-card status-${st}" data-card="${c.id}">
+          <span class="status-mark"></span>
           <div class="word-main">
             <div class="word-front-row">
               <span class="word-front">${escapeHTML(c.front) || '<em>（表が空）</em>'}</span>
-              ${TTS.ok ? `<button class="speak-mini" data-speak aria-label="発音">🔊</button>` : ''}
+              ${TTS.ok ? `<button class="speak-mini" data-speak aria-label="発音"><svg class="ic"><use href="#ic-sound"/></svg></button>` : ''}
             </div>
             <div class="word-back">${escapeHTML(c.back) || '<em>（裏が空）</em>'}</div>
-            ${c.note ? `<div class="word-note">📝 ${escapeHTML(c.note)}</div>` : ''}
+            ${c.note ? `<div class="word-note">${escapeHTML(c.note)}</div>` : ''}
           </div>
           <div class="word-side">
             <span class="status-tag">${stLabel}</span>
-            <span class="word-stat">✓${s.correct || 0} ✗${s.incorrect || 0}</span>
+            <span class="word-stat">${s.correct || 0}・${s.incorrect || 0}</span>
             <div class="word-actions">
-              <button class="icon-btn sm" data-edit aria-label="編集">✏</button>
-              <button class="icon-btn sm" data-del aria-label="削除">🗑</button>
+              <button class="icon-btn sm" data-edit aria-label="編集"><svg class="ic"><use href="#ic-edit"/></svg></button>
+              <button class="icon-btn sm" data-del aria-label="削除"><svg class="ic"><use href="#ic-trash"/></svg></button>
             </div>
           </div>
         </div>`;
@@ -211,8 +212,8 @@
       <div class="seg-group">
         <span class="seg-label">モード</span>
         <div class="segmented" id="segMode">
-          <button data-v="flash" class="active">🃏 フラッシュカード</button>
-          <button data-v="quiz">⌨️ クイズ</button>
+          <button data-v="flash" class="active">カード</button>
+          <button data-v="quiz">タイピング</button>
         </div>
       </div>
       <div class="modal-actions">
@@ -300,7 +301,7 @@
 
     if (s.mode === 'flash') {
       $('#cardFront').textContent = card.front || '（表が空）';
-      $('#cardBack').textContent = (card.back || '（裏が空）') + (card.note ? `\n\n📝 ${card.note}` : '');
+      $('#cardBack').textContent = (card.back || '（裏が空）') + (card.note ? `\n\n${card.note}` : '');
       if (Store.getSettings().autoSpeak) TTS.speak(card.front, deck.lang);
     } else {
       $('#quizPrompt').textContent = card.front || '（表が空）';
@@ -365,10 +366,10 @@
     fb.hidden = false;
     fb.className = 'quiz-feedback ' + (correct ? 'ok' : 'ng');
     fb.innerHTML = `
-      <div class="qf-head">${correct ? '⭕ 正解！' : '❌ 不正解'}</div>
+      <div class="qf-head">${correct ? '正解' : '不正解'}</div>
       <div class="qf-ans">正解：<strong>${escapeHTML(card.back)}</strong>
-        ${TTS.ok ? '<button class="speak-mini" id="qfSpeak" aria-label="発音">🔊</button>' : ''}</div>
-      ${card.note ? `<div class="qf-note">📝 ${escapeHTML(card.note)}</div>` : ''}
+        ${TTS.ok ? '<button class="speak-mini" id="qfSpeak" aria-label="発音"><svg class="ic"><use href="#ic-sound"/></svg></button>' : ''}</div>
+      ${card.note ? `<div class="qf-note">${escapeHTML(card.note)}</div>` : ''}
       <div class="qf-actions">
         ${correct ? '' : '<button class="btn btn-ghost sm" id="qfOverride">やっぱり正解にする</button>'}
         <button class="btn btn-primary" id="qfNext">次へ →</button>
@@ -404,7 +405,7 @@
     $('#studyActions').hidden = true;
     const total = s.correct + s.wrong;
     const rate = total ? Math.round((s.correct / total) * 100) : 0;
-    $('#resultEmoji').textContent = rate >= 80 ? '🎉' : rate >= 50 ? '💪' : '📚';
+    $('#resultEmoji').textContent = '✦';
     $('#studyResultText').innerHTML =
       `${total} 語中 <strong class="ok">${s.correct}</strong> 語正解` +
       `（正答率 ${rate}%）、<strong class="ng">${s.wrong}</strong> 語まだでした。`;
@@ -494,7 +495,7 @@
 
     $('#statsContent').innerHTML = `
       <div class="stat-hero">
-        <div class="streak-big">🔥 ${streak}<span>日連続</span></div>
+        <div class="streak-big">${streak}<small>日連続</small></div>
         <div class="stat-grid">
           <div class="stat-box"><b>${today.reviewed}</b><span>今日の学習</span></div>
           <div class="stat-box"><b>${g.due}</b><span>復習待ち</span></div>
@@ -629,8 +630,8 @@
       `
       <h2 class="modal-title">単語帳の設定</h2>
       <div class="settings-group">
-        <button class="btn block" id="s_rename">✏ 名前・言語を変更</button>
-        <button class="btn block" id="s_reset">↺ 学習記録をリセット</button>
+        <button class="btn block" id="s_rename">名前・言語を変更</button>
+        <button class="btn block" id="s_reset">学習記録をリセット</button>
       </div>
       ${TTS.ok ? `<label class="switch-row">
         <span>カード表示時に自動で発音する</span>
@@ -647,7 +648,7 @@
       <input type="file" id="s_file" accept=".csv,text/csv,text/plain" hidden />
       <hr class="modal-sep" />
       <div class="settings-group">
-        <button class="btn btn-danger block" id="s_deleteDeck">🗑 この単語帳を削除</button>
+        <button class="btn btn-danger block" id="s_deleteDeck">この単語帳を削除</button>
       </div>
       <div class="modal-actions"><button class="btn btn-primary" data-close>閉じる</button></div>`,
       (root) => {
@@ -723,10 +724,10 @@
       `<h3 class="lib-section">${title}${sub ? `<span>${sub}</span>` : ''}</h3><div class="lib-list">${list.map(item).join('')}</div>`;
 
     const html = `
-      <h2 class="modal-title">📚 ライブラリ</h2>
+      <h2 class="modal-title">ライブラリ</h2>
       <p class="modal-text">タップで単語帳に追加。追加後は自由に編集できます。</p>
-      ${presets.length ? section('📖 テーマ別', '', presets) : ''}
-      ${wordbank.length ? section('🔤 英単語（頻度順）', `${wbWords}語を500語ずつ収録`, wordbank) : ''}
+      ${presets.length ? section('テーマ別', '', presets) : ''}
+      ${wordbank.length ? section('英単語 — 頻度順', `${wbWords}語を500語ずつ収録`, wordbank) : ''}
       <div class="modal-actions"><button class="btn btn-primary" data-close>閉じる</button></div>`;
 
     openModal(html, (root) => {
@@ -748,13 +749,13 @@
   function openAppMenu() {
     openModal(
       `
-      <h2 class="modal-title">⋮ メニュー</h2>
+      <h2 class="modal-title">メニュー</h2>
       <div class="settings-group">
-        <button class="btn block" id="mn_stats">📊 学習統計を見る</button>
-        <button class="btn block" id="mn_theme">🌗 テーマを切り替え</button>
-        <button class="btn block" id="mn_backup">💾 全データをバックアップ</button>
-        <button class="btn block" id="mn_restore">📂 バックアップから復元</button>
-        <button class="btn block" id="mn_about">ℹ️ このアプリについて</button>
+        <button class="btn block" id="mn_stats">学習統計を見る</button>
+        <button class="btn block" id="mn_theme">テーマを切り替え</button>
+        <button class="btn block" id="mn_backup">全データをバックアップ</button>
+        <button class="btn block" id="mn_restore">バックアップから復元</button>
+        <button class="btn block" id="mn_about">このアプリについて</button>
       </div>
       <input type="file" id="mn_file" accept="application/json,.json" hidden />
       <div class="modal-actions"><button class="btn btn-primary" data-close>閉じる</button></div>`,
@@ -780,13 +781,13 @@
 
   function openAboutModal() {
     openModal(`
-      <h2 class="modal-title">📚 単語帳について</h2>
+      <h2 class="modal-title">このアプリについて</h2>
       <p class="modal-text">科目を問わず使える汎用フラッシュカードアプリです。データは端末内（localStorage）にのみ保存され、外部送信はありません。</p>
       <ul class="about-list">
-        <li>🧠 間隔反復(SRS)で最適なタイミングに復習</li>
-        <li>⌨️ クイズ（タイピング）モード／🔊 発音読み上げ</li>
-        <li>📊 学習統計・連続日数 ／ 👆 スワイプ採点</li>
-        <li>💾 バックアップで端末間移行も可能</li>
+        <li>間隔反復で最適なタイミングに復習</li>
+        <li>クイズ（タイピング）モード／発音読み上げ</li>
+        <li>学習統計・連続日数 ／ スワイプ採点</li>
+        <li>バックアップで端末間移行も可能</li>
       </ul>
       <div class="modal-actions"><button class="btn btn-primary" data-close>閉じる</button></div>`);
   }
@@ -797,9 +798,9 @@
   //  オンボーディング
   // ============================================================
   const SLIDES = [
-    { emoji: '📚', title: 'ようこそ！', text: '科目を問わず使える単語帳アプリ。ライブラリから英単語・地理・四字熟語などをワンタップで追加して、すぐ始められます。' },
-    { emoji: '🧠', title: '賢く復習', text: '間隔反復(SRS)が最適な復習日を自動で計算。クイズや発音読み上げも使えます。' },
-    { emoji: '👆', title: 'かんたん操作', text: 'カードはタップでめくり、左右スワイプで「まだ／覚えた」を記録できます。' },
+    { mark: '✦', title: 'ようこそ', text: '科目を問わず使える単語帳。ライブラリから英単語・地理・四字熟語などをワンタップで追加し、すぐに始められます。' },
+    { mark: '◐', title: '静かに、賢く', text: '間隔反復が最適な復習日を自動で計算。クイズ（タイピング）や発音読み上げにも対応しています。' },
+    { mark: '⟷', title: 'なめらかな操作', text: 'カードはタップでめくり、左右スワイプで「まだ／覚えた」を記録できます。' },
   ];
   function showOnboarding() {
     const el = $('#onboard');
@@ -808,14 +809,14 @@
       const s = SLIDES[i];
       el.innerHTML = `
         <div class="onboard-card">
-          <div class="onboard-emoji">${s.emoji}</div>
+          <div class="onboard-mark">${s.mark}</div>
           <h2>${s.title}</h2>
           <p>${s.text}</p>
           <div class="dots">${SLIDES.map((_, k) => `<span class="${k === i ? 'on' : ''}"></span>`).join('')}</div>
           <div class="onboard-actions">
             ${i < SLIDES.length - 1
               ? `<button class="btn btn-ghost" id="ob_skip">スキップ</button><button class="btn btn-primary" id="ob_next">次へ</button>`
-              : `<button class="btn" id="ob_start">自分で作る</button><button class="btn btn-primary" id="ob_lib">📚 ライブラリから選ぶ</button>`}
+              : `<button class="btn" id="ob_start">自分で作る</button><button class="btn btn-primary" id="ob_lib">ライブラリから選ぶ</button>`}
           </div>
         </div>`;
       const next = $('#ob_next'); if (next) next.addEventListener('click', () => { i++; render(); });

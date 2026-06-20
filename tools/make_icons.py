@@ -10,11 +10,12 @@ import zlib
 
 OUT_DIR = os.path.join(os.path.dirname(__file__), "..", "icons")
 
-# Brand colours (R, G, B)
-BG_TOP = (79, 70, 229)      # indigo-600
-BG_BOTTOM = (124, 58, 237)  # violet-600
-CARD = (255, 255, 255)
-CARD_LINE = (199, 210, 254)
+# Brand colours (R, G, B) — 静かで洗練されたパレット
+BG_TOP = (12, 14, 19)       # near-black
+BG_BOTTOM = (16, 19, 26)
+CARD = (236, 233, 225)      # warm parchment
+CARD_LINE = (175, 178, 184)
+ACCENT = (121, 166, 203)    # 抑えたセイバー・ブルー
 
 
 def lerp(a, b, t):
@@ -60,17 +61,23 @@ def build_pixels(size):
             cl, ct, crr, cb = margin, margin, size - margin, size - margin
             if rounded(x, y, size, size, cl, ct, crr, cb, cr):
                 px = (CARD[0], CARD[1], CARD[2], 255)
-                # text lines on the card
-                line_h = max(1, size // 28)
-                gap = (cb - ct) // 5
-                for i in range(1, 4):
-                    ly = ct + gap * i
-                    lx0 = cl + (crr - cl) // 6
-                    lx1 = crr - (crr - cl) // 6
-                    if i == 3:
-                        lx1 = cl + (crr - cl) * 2 // 3
-                    if ly <= y < ly + line_h and lx0 <= x < lx1:
-                        px = (CARD_LINE[0], CARD_LINE[1], CARD_LINE[2], 255)
+                # 抑えたアクセントの縦線（セイバー）
+                acc_x0 = cl + (crr - cl) // 8
+                acc_w = max(2, size // 40)
+                if acc_x0 <= x < acc_x0 + acc_w and ct + (cb - ct) // 5 <= y < cb - (cb - ct) // 5:
+                    px = (ACCENT[0], ACCENT[1], ACCENT[2], 255)
+                else:
+                    # 静かな2本の罫線
+                    line_h = max(1, size // 32)
+                    gap = (cb - ct) // 3
+                    for i in range(1, 3):
+                        ly = ct + gap * i
+                        lx0 = acc_x0 + acc_w + (crr - cl) // 10
+                        lx1 = crr - (crr - cl) // 6
+                        if i == 2:
+                            lx1 = lx0 + (crr - lx0) * 3 // 5
+                        if ly <= y < ly + line_h and lx0 <= x < lx1:
+                            px = (CARD_LINE[0], CARD_LINE[1], CARD_LINE[2], 255)
             row += bytes(px)
         rows.append(bytes(row))
     return rows

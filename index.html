@@ -3,15 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>単語帳 - Vocabulary Book</title>
-  <meta name="description" content="科目を問わず使える汎用フラッシュカード単語帳。間隔反復・発音・クイズ・学習統計に対応。" />
-  <meta name="theme-color" content="#4f46e5" />
+  <title>単語帳</title>
+  <meta name="description" content="静かに、確かに。間隔反復・発音・クイズ・学習統計に対応した汎用単語帳。" />
+  <meta name="theme-color" content="#0a0c10" />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" type="image/png" href="icons/favicon-32.png" />
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <!-- テーマのちらつき防止：描画前に保存済みテーマを適用 -->
   <script>
     (function () {
       try {
@@ -25,46 +24,61 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+  <!-- ===== 細線アイコンのスプライト ===== -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="ic-back" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="ic-stats" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="ic-theme" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M12 4a8 8 0 000 16z" fill="currentColor"/></symbol>
+    <symbol id="ic-menu" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.4" fill="currentColor"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/><circle cx="12" cy="19" r="1.4" fill="currentColor"/></symbol>
+    <symbol id="ic-sound" viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M17 8.5a5 5 0 010 7" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></symbol>
+    <symbol id="ic-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="ic-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+    <symbol id="ic-flip" viewBox="0 0 24 24"><path d="M4 9a8 8 0 0114-3m2-2v4h-4M20 15a8 8 0 01-14 3m-2 2v-4h4" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="ic-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></symbol>
+    <symbol id="ic-edit" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16v4z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></symbol>
+    <symbol id="ic-trash" viewBox="0 0 24 24"><path d="M5 7h14M10 7V5h4v2M6 7l1 13h10l1-13" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  </svg>
+
   <header class="app-header">
-    <button id="backBtn" class="icon-btn" hidden aria-label="戻る">←</button>
-    <h1 id="appTitle" class="app-title">📚 単語帳</h1>
-    <button id="statsBtn" class="icon-btn" aria-label="学習統計">📊</button>
-    <button id="themeBtn" class="icon-btn" aria-label="テーマ切替">🌗</button>
-    <button id="menuToggle" class="icon-btn" aria-label="メニュー">⋮</button>
+    <button id="backBtn" class="icon-btn" hidden aria-label="戻る"><svg class="ic"><use href="#ic-back"/></svg></button>
+    <h1 id="appTitle" class="app-title">単語帳</h1>
+    <button id="statsBtn" class="icon-btn" aria-label="学習統計"><svg class="ic"><use href="#ic-stats"/></svg></button>
+    <button id="themeBtn" class="icon-btn" aria-label="テーマ切替"><svg class="ic"><use href="#ic-theme"/></svg></button>
+    <button id="menuToggle" class="icon-btn" aria-label="メニュー"><svg class="ic"><use href="#ic-menu"/></svg></button>
   </header>
 
   <main id="main">
     <!-- ============ デッキ一覧 ============ -->
     <section id="view-decks" class="view">
       <div class="toolbar">
-        <input id="deckSearch" class="search" type="search" placeholder="単語帳を検索…" aria-label="単語帳を検索" />
-        <button id="libraryBtn" class="btn">📚 ライブラリ</button>
-        <button id="addDeckBtn" class="btn btn-primary">＋ 新規</button>
+        <input id="deckSearch" class="search" type="search" placeholder="単語帳を検索" aria-label="単語帳を検索" />
+        <button id="libraryBtn" class="btn">ライブラリ</button>
+        <button id="addDeckBtn" class="btn btn-primary">新規</button>
       </div>
       <div id="deckList" class="deck-list"></div>
       <div id="deckEmpty" class="empty-state" hidden>
-        <div class="empty-emoji">📚</div>
-        <p>まだ単語帳がありません。<br />新しく作るか、サンプルで試してみましょう。</p>
+        <div class="empty-mark">✦</div>
+        <p>まだ単語帳がありません。<br />ライブラリから選ぶか、新しく作りましょう。</p>
         <div class="empty-actions">
-          <button id="emptyLibrary" class="btn btn-primary">📚 ライブラリから選ぶ</button>
-          <button id="emptyAddDeck" class="btn">＋ 自分で作る</button>
+          <button id="emptyLibrary" class="btn btn-primary">ライブラリから選ぶ</button>
+          <button id="emptyAddDeck" class="btn">自分で作る</button>
         </div>
       </div>
     </section>
 
-    <!-- ============ デッキ詳細（カード管理） ============ -->
+    <!-- ============ デッキ詳細 ============ -->
     <section id="view-deck" class="view" hidden>
       <div class="deck-summary" id="deckSummary"></div>
       <div class="toolbar">
-        <button id="studyBtn" class="btn btn-primary">▶ 学習する</button>
-        <button id="addCardBtn" class="btn">＋ 単語を追加</button>
+        <button id="studyBtn" class="btn btn-primary">学習する</button>
+        <button id="addCardBtn" class="btn">単語を追加</button>
         <div class="spacer"></div>
-        <button id="deckMenuBtn" class="btn btn-ghost">⚙ 設定</button>
+        <button id="deckMenuBtn" class="btn btn-ghost">設定</button>
       </div>
-      <input id="cardSearch" class="search" type="search" placeholder="単語を検索…" aria-label="単語を検索" />
+      <input id="cardSearch" class="search" type="search" placeholder="単語を検索" aria-label="単語を検索" />
       <div id="cardList" class="card-list"></div>
       <p id="cardEmpty" class="empty-state" hidden>
-        まだ単語がありません。<br />「＋ 単語を追加」または設定からCSVを取り込みましょう。
+        まだ単語がありません。<br />「単語を追加」または設定からCSVを取り込みましょう。
       </p>
     </section>
 
@@ -75,19 +89,18 @@
         <span id="studyCounter" class="study-counter">0 / 0</span>
       </div>
 
-      <!-- フラッシュカード -->
       <div id="flashcardWrap" class="flashcard-wrap">
         <div id="flashcard" class="flashcard" tabindex="0" role="button" aria-label="カードをめくる">
           <div class="flashcard-inner">
             <div class="flashcard-face flashcard-front">
               <span class="face-label">表</span>
-              <button class="speak-btn" id="speakFront" aria-label="発音">🔊</button>
+              <button class="speak-btn" id="speakFront" aria-label="発音"><svg class="ic"><use href="#ic-sound"/></svg></button>
               <p id="cardFront" class="face-text"></p>
-              <span class="tap-hint">タップ／スペースでめくる</span>
+              <span class="tap-hint">タップでめくる</span>
             </div>
             <div class="flashcard-face flashcard-back">
               <span class="face-label">裏</span>
-              <button class="speak-btn" id="speakBack" aria-label="発音">🔊</button>
+              <button class="speak-btn" id="speakBack" aria-label="発音"><svg class="ic"><use href="#ic-sound"/></svg></button>
               <p id="cardBack" class="face-text"></p>
             </div>
           </div>
@@ -96,30 +109,28 @@
         </div>
       </div>
 
-      <!-- クイズ（タイピング）モード -->
       <div id="quizArea" class="quiz-area" hidden>
         <div class="quiz-card">
           <span class="face-label">問題</span>
-          <button class="speak-btn" id="speakQuiz" aria-label="発音">🔊</button>
+          <button class="speak-btn" id="speakQuiz" aria-label="発音"><svg class="ic"><use href="#ic-sound"/></svg></button>
           <p id="quizPrompt" class="face-text"></p>
         </div>
         <form id="quizForm" class="quiz-form" autocomplete="off">
-          <input id="quizInput" class="quiz-input" type="text" placeholder="答えを入力…"
-                 aria-label="答えを入力" enterkeyhint="done" />
-          <button type="submit" class="btn btn-primary" id="quizSubmit">答え合わせ</button>
+          <input id="quizInput" class="quiz-input" type="text" placeholder="答えを入力" aria-label="答えを入力" enterkeyhint="done" />
+          <button type="submit" class="btn btn-primary" id="quizSubmit">確認</button>
         </form>
         <div id="quizFeedback" class="quiz-feedback" hidden></div>
       </div>
 
       <div class="study-actions" id="studyActions">
-        <button id="markWrongBtn" class="btn btn-wrong">✗ まだ</button>
-        <button id="flipBtn" class="btn btn-flip">⟳ めくる</button>
-        <button id="markRightBtn" class="btn btn-right">✓ 覚えた</button>
+        <button id="markWrongBtn" class="btn btn-wrong">まだ</button>
+        <button id="flipBtn" class="btn btn-flip"><svg class="ic"><use href="#ic-flip"/></svg> めくる</button>
+        <button id="markRightBtn" class="btn btn-right">覚えた</button>
       </div>
 
       <div class="study-result" id="studyResult" hidden>
-        <div class="result-emoji" id="resultEmoji">🎉</div>
-        <h2>お疲れさまでした！</h2>
+        <div class="result-mark" id="resultEmoji">✦</div>
+        <h2>学習を終えました</h2>
         <p id="studyResultText"></p>
         <div class="result-actions">
           <button id="restartWrongBtn" class="btn btn-primary" hidden>間違えた単語だけ復習</button>
@@ -135,7 +146,6 @@
     </section>
   </main>
 
-  <!-- ============ モーダル ============ -->
   <div id="modalRoot" class="modal-root" hidden>
     <div class="modal-backdrop" data-close></div>
     <div class="modal" role="dialog" aria-modal="true">
@@ -143,9 +153,7 @@
     </div>
   </div>
 
-  <!-- ============ オンボーディング ============ -->
   <div id="onboard" class="onboard" hidden></div>
-
   <div id="toast" class="toast" hidden></div>
 
   <script src="presets.js"></script>
