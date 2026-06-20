@@ -304,10 +304,16 @@
     const deck = Store.getDeck(state.deckId);
     s.flipped = false;
     const fc = $('#flashcard');
+    const inner = fc.querySelector('.flashcard-inner');
+    // 前カードが裏のままでも、次カードは必ず表から出す（めくり戻りを瞬時に行う）
+    inner.style.transition = 'none';
+    fc.style.transition = 'none';
     fc.classList.remove('flipped');
-    fc.style.transition = '';
     fc.style.transform = '';
     fc.style.boxShadow = '';
+    void fc.offsetWidth; // リフローを強制してアニメなしで即適用
+    inner.style.transition = '';
+    fc.style.transition = '';
 
     $('#studyCounter').textContent = `${s.index + 1} / ${s.cards.length}`;
     $('#studyProgressBar').style.width = Math.round((s.index / s.cards.length) * 100) + '%';
