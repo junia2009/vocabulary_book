@@ -27,6 +27,21 @@ FREQ_URL = 'https://raw.githubusercontent.com/first20hours/google-10000-english/
 
 JP = re.compile(r'[぀-ヿ㐀-鿿]')  # hiragana/katakana/kanji
 
+# 機能語（冠詞・前置詞・代名詞・助動詞・be動詞など）は学習価値が低いので除外する
+STOPWORDS = set("""
+the of and to a in that is was for it with as his on be at by i this had not are but from
+or have an they which you were her all she there would their we him been has when who will
+more no if out so up said what its about into than them can only other do may after most
+such my your our these am does did between just him your should under while because each
+those then now very also any our us how here our own through where why both being into
+he she it we they you me him her us them my your his its our their mine yours hers ours theirs
+am is are was were be been being do does did have has had will would shall should can could
+may might must ought a an the this that these those of in on at by for with about against
+between into through during before after above below to from up down out off over under
+and but or nor so yet for as if than because while although though unless until whether
+i you he she it we they who whom whose which what
+""".split())
+
 
 def fetch(url, path):
     with urllib.request.urlopen(url, timeout=60) as r, open(path, 'wb') as f:
@@ -47,29 +62,36 @@ def load_dict(workdir):
     return d
 
 
-def clean_fallback(s):
-    s = s.split(' / ')[0]
-    s = re.sub(r'《[^》]*》', '', s)
-    s = re.sub(r'〈[^〉]*〉', '', s)
-    s = re.sub(r'\([^)]*\)', '', s)
-    s = re.sub(r'〔[^〕]*〕', '', s)
-    s = re.sub(r'[＝=].*$', '', s)
-    return s.strip(' ,;・。')[:24]
+def tidy(term):
+    """1語義ぶんのノイズ（記号・注記・ふりがな）を除去して簡潔にする。"""
+    term = re.split(r'[;；]', term)[0]          # 「;」以降の補足は捨てる
+    term = re.sub(r'《[^》]*》', '', term)
+    term = re.sub(r'〈[^〉]*〉', '', term)
+    term = re.sub(r'[（(][^）)]*[）)]', '', term)  # （…）注記
+    term = re.sub(r'[\[［][^\]］]*[\]］]', '', term)  # ［…］注記
+    term = re.sub(r'〔[^〕]*〕', '', term)
+    term = re.sub(r'[＝=].*$', '', term)
+    term = term.replace('…', '').strip(' ,，、。・~～:：')
+    return term
 
 
 def gloss(defi):
-    """Extract a concise Japanese gloss. Returns None if unusable."""
+    """Extract a concise Japanese gloss (1〜2語義). Returns None if unusable."""
     if not defi or defi[0] in '=＝':
         return None
-    core = []
-    for m in re.findall(r'『(.+?)』', defi):
-        m = m.strip()
-        if m and m not in core:
-            core.append(m)
-    out = '／'.join(core[:3]) if core else clean_fallback(defi)
-    if not out or not JP.search(out):  # 日本語を含まないものは除外
+    # 品詞略号など、語義として無意味な断片
+    POS_JUNK = set('名動形副代接前数助他自補冠') | {'する', 'の', 'こと'}
+    terms = []
+    src = re.findall(r'『(.+?)』', defi) or re.split(r'\s*/\s*', defi)
+    for m in src:
+        t = tidy(m)
+        if t and JP.search(t) and t not in terms and t not in POS_JUNK and len(t) <= 16:
+            terms.append(t)
+        if len(terms) >= 2:
+            break
+    if not terms:
         return None
-    return out
+    return '／'.join(terms)
 
 
 def main():
@@ -81,7 +103,7 @@ def main():
 
     pairs, seen = [], set()
     for w in freq:
-        if not re.fullmatch(r'[a-z]{2,}', w) or w in seen:
+        if not re.fullmatch(r'[a-z]{2,}', w) or w in seen or w in STOPWORDS:
             continue
         g = d.get(w)
         if not g:
