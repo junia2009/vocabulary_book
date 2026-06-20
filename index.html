@@ -124,9 +124,9 @@
       </div>
 
       <div class="study-actions" id="studyActions">
-        <button id="markWrongBtn" class="btn btn-wrong">まだ</button>
+        <span class="swipe-guide guide-left">← まだ</span>
         <button id="flipBtn" class="btn btn-flip"><svg class="ic"><use href="#ic-flip"/></svg> めくる</button>
-        <button id="markRightBtn" class="btn btn-right">覚えた</button>
+        <span class="swipe-guide guide-right">覚えた →</span>
       </div>
 
       <div class="study-result" id="studyResult" hidden>
@@ -155,6 +155,20 @@
   </div>
 
   <div id="onboard" class="onboard" hidden></div>
+
+  <!-- ===== スワイプ操作の初回チュートリアル ===== -->
+  <div id="swipeCoach" class="swipe-coach" hidden>
+    <div class="coach-inner">
+      <div class="coach-demo">
+        <span class="coach-hint coach-left">まだ</span>
+        <div class="coach-card"><svg class="ic"><use href="#ic-flip"/></svg></div>
+        <span class="coach-hint coach-right">覚えた</span>
+      </div>
+      <p class="coach-text">カードを<strong>左右にスワイプ</strong>して記録します。<br>右へ払えば「覚えた」、左へ払えば「まだ」。</p>
+      <button class="btn btn-primary" id="coachOk">はじめる</button>
+    </div>
+  </div>
+
   <div id="toast" class="toast" hidden></div>
 
   <script src="presets.js"></script>

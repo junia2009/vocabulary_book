@@ -238,14 +238,12 @@ html, body {
 .swipe-hint-left { left: 22px; color: var(--clay); border-color: var(--clay); transform: translateY(-50%) rotate(-9deg); }
 .swipe-hint-right { right: 22px; color: var(--sage); border-color: var(--sage); transform: translateY(-50%) rotate(9deg); }
 
-.study-actions { display: flex; gap: 10px; width: 100%; max-width: 460px; }
-.study-actions .btn { flex: 1; padding: 15px; font-size: .92rem; letter-spacing: .08em; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.study-actions { display: flex; align-items: center; gap: 14px; width: 100%; max-width: 460px; }
+.study-actions .btn-flip { flex: 0 0 auto; padding: 13px 22px; font-size: .9rem; letter-spacing: .08em; display: flex; align-items: center; justify-content: center; gap: 8px; color: var(--text-soft); }
 .study-actions .ic { width: 18px; height: 18px; }
-.btn-wrong { border-color: rgba(194,145,138,0.35); color: var(--clay); }
-.btn-wrong:hover { background: var(--clay-soft); border-color: var(--clay); }
-.btn-right { border-color: rgba(143,174,151,0.35); color: var(--sage); }
-.btn-right:hover { background: var(--sage-soft); border-color: var(--sage); }
-.btn-flip { color: var(--text-soft); }
+.swipe-guide { flex: 1; font-size: .82rem; font-weight: 600; letter-spacing: .1em; opacity: .85; }
+.guide-left { color: var(--clay); text-align: right; }
+.guide-right { color: var(--sage); text-align: left; }
 
 /* クイズ */
 .quiz-area { width: 100%; max-width: 460px; display: flex; flex-direction: column; gap: 18px; }
@@ -433,3 +431,26 @@ body::after {
   body::before, body::after, .emblem, .flashcard { animation: none; }
   .force-ripple { display: none; }
 }
+
+/* ---------- スワイプ初回チュートリアル ---------- */
+.swipe-coach { position: fixed; inset: 0; z-index: 65; display: grid; place-items: center; padding: 28px;
+  background: rgba(5,7,10,0.82); backdrop-filter: blur(6px); animation: fade .3s ease; }
+.coach-inner { text-align: center; max-width: 360px; width: 100%; }
+.coach-demo { position: relative; height: 150px; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; }
+.coach-card { width: 96px; height: 128px; border-radius: 12px; background: var(--card); border: 1px solid var(--border-strong);
+  display: grid; place-items: center; color: var(--accent);
+  box-shadow: 0 14px 40px rgba(0,0,0,0.5); animation: coachSwipe 2.8s cubic-bezier(.4,0,.2,1) infinite; }
+.coach-card .ic { width: 30px; height: 30px; opacity: .7; }
+@keyframes coachSwipe {
+  0%, 100% { transform: translateX(0) rotate(0); }
+  18% { transform: translateX(72px) rotate(11deg); box-shadow: 0 14px 44px rgba(143,174,151,.5); }
+  36% { transform: translateX(0) rotate(0); }
+  64% { transform: translateX(-72px) rotate(-11deg); box-shadow: 0 14px 44px rgba(194,145,138,.5); }
+  82% { transform: translateX(0) rotate(0); }
+}
+.coach-hint { position: absolute; top: 50%; transform: translateY(-50%); font-size: 1rem; font-weight: 600; letter-spacing: .16em; }
+.coach-left { left: 6px; color: var(--clay); }
+.coach-right { right: 6px; color: var(--sage); }
+.coach-text { color: var(--text-soft); line-height: 1.9; letter-spacing: .03em; margin: 6px 0 22px; font-size: .92rem; }
+.coach-text strong { color: var(--text); }
+.swipe-coach .btn { min-width: 160px; }

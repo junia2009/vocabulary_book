@@ -290,6 +290,9 @@
     $('#studyActions').hidden = mode !== 'flash';
     showView('study');
     renderStudyCard();
+    // 初回のみスワイプ操作のチュートリアルを表示
+    if (mode === 'flash' && !Store.getSettings().swipeCoached) $('#swipeCoach').hidden = false;
+    else $('#swipeCoach').hidden = true;
   }
 
   function currentCard() {
@@ -898,8 +901,7 @@
     // 学習：フラッシュカード
     $('#flashcard').addEventListener('click', (e) => { if (e.target.closest('.speak-btn') || suppressClick) return; flipCard(); });
     $('#flipBtn').addEventListener('click', flipCard);
-    $('#markRightBtn').addEventListener('click', () => gradeCurrent('good'));
-    $('#markWrongBtn').addEventListener('click', () => gradeCurrent('again'));
+    $('#coachOk').addEventListener('click', () => { Store.updateSettings({ swipeCoached: true }); $('#swipeCoach').hidden = true; });
     $('#speakFront').addEventListener('click', () => { const c = currentCard(); if (c) TTS.speak(c.front, Store.getDeck(state.deckId).lang); });
     $('#speakBack').addEventListener('click', () => { const c = currentCard(); if (c) TTS.speak(c.back, Store.getDeck(state.deckId).lang); });
     setupSwipe();
@@ -920,7 +922,7 @@
     // キーボード
     document.addEventListener('keydown', (e) => {
       if (!modalRoot.hidden) { if (e.key === 'Escape') closeModal(); return; }
-      if (!$('#onboard').hidden) return;
+      if (!$('#onboard').hidden || !$('#swipeCoach').hidden) return;
       if (state.view !== 'study' || !state.study) return;
       if (state.study.mode === 'flash') {
         if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); flipCard(); }

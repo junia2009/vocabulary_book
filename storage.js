@@ -11,7 +11,7 @@ const Store = (() => {
   function emptyData() {
     return {
       version: 2,
-      settings: { theme: 'auto', onboarded: false, autoSpeak: false },
+      settings: { theme: 'auto', onboarded: false, autoSpeak: false, swipeCoached: false },
       stats: { history: {} }, // { 'YYYY-MM-DD': { reviewed, correct } }
       decks: [],
     };
@@ -37,6 +37,7 @@ const Store = (() => {
     if (!d || !Array.isArray(d.decks)) return emptyData();
     if (!d.settings) d.settings = { theme: 'auto', onboarded: false, autoSpeak: false };
     if (d.settings.autoSpeak == null) d.settings.autoSpeak = false;
+    if (d.settings.swipeCoached == null) d.settings.swipeCoached = false;
     if (!d.stats) d.stats = { history: {} };
     if (!d.stats.history) d.stats.history = {};
     for (const deck of d.decks) {
