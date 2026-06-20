@@ -1,22 +1,35 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="ja" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>単語帳 - Vocabulary Book</title>
-  <meta name="description" content="科目を問わず使える汎用フラッシュカード単語帳。学習進捗と正誤を記録できます。" />
+  <meta name="description" content="科目を問わず使える汎用フラッシュカード単語帳。間隔反復・発音・クイズ・学習統計に対応。" />
   <meta name="theme-color" content="#4f46e5" />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" type="image/png" href="icons/favicon-32.png" />
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <!-- テーマのちらつき防止：描画前に保存済みテーマを適用 -->
+  <script>
+    (function () {
+      try {
+        var s = JSON.parse(localStorage.getItem('vocab_book_v1') || '{}');
+        var t = (s.settings && s.settings.theme) || 'auto';
+        if (t === 'auto') t = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {}
+    })();
+  </script>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <header class="app-header">
     <button id="backBtn" class="icon-btn" hidden aria-label="戻る">←</button>
     <h1 id="appTitle" class="app-title">📚 単語帳</h1>
+    <button id="statsBtn" class="icon-btn" aria-label="学習統計">📊</button>
+    <button id="themeBtn" class="icon-btn" aria-label="テーマ切替">🌗</button>
     <button id="menuToggle" class="icon-btn" aria-label="メニュー">⋮</button>
   </header>
 
@@ -28,9 +41,14 @@
         <button id="addDeckBtn" class="btn btn-primary">＋ 新しい単語帳</button>
       </div>
       <div id="deckList" class="deck-list"></div>
-      <p id="deckEmpty" class="empty-state" hidden>
-        まだ単語帳がありません。<br />「＋ 新しい単語帳」から作成しましょう。
-      </p>
+      <div id="deckEmpty" class="empty-state" hidden>
+        <div class="empty-emoji">📚</div>
+        <p>まだ単語帳がありません。<br />新しく作るか、サンプルで試してみましょう。</p>
+        <div class="empty-actions">
+          <button id="emptyAddDeck" class="btn btn-primary">＋ 新しい単語帳</button>
+          <button id="emptySample" class="btn">サンプルを作成</button>
+        </div>
+      </div>
     </section>
 
     <!-- ============ デッキ詳細（カード管理） ============ -->
@@ -55,33 +73,64 @@
         <div class="progress-track"><div id="studyProgressBar" class="progress-bar"></div></div>
         <span id="studyCounter" class="study-counter">0 / 0</span>
       </div>
-      <div id="flashcard" class="flashcard" tabindex="0" role="button" aria-label="カードをめくる">
-        <div class="flashcard-inner">
-          <div class="flashcard-face flashcard-front">
-            <span class="face-label">表</span>
-            <p id="cardFront" class="face-text"></p>
-            <span class="tap-hint">タップ／スペースでめくる</span>
+
+      <!-- フラッシュカード -->
+      <div id="flashcardWrap" class="flashcard-wrap">
+        <div id="flashcard" class="flashcard" tabindex="0" role="button" aria-label="カードをめくる">
+          <div class="flashcard-inner">
+            <div class="flashcard-face flashcard-front">
+              <span class="face-label">表</span>
+              <button class="speak-btn" id="speakFront" aria-label="発音">🔊</button>
+              <p id="cardFront" class="face-text"></p>
+              <span class="tap-hint">タップ／スペースでめくる</span>
+            </div>
+            <div class="flashcard-face flashcard-back">
+              <span class="face-label">裏</span>
+              <button class="speak-btn" id="speakBack" aria-label="発音">🔊</button>
+              <p id="cardBack" class="face-text"></p>
+            </div>
           </div>
-          <div class="flashcard-face flashcard-back">
-            <span class="face-label">裏</span>
-            <p id="cardBack" class="face-text"></p>
-          </div>
+          <div class="swipe-hint swipe-hint-left">まだ</div>
+          <div class="swipe-hint swipe-hint-right">覚えた</div>
         </div>
       </div>
-      <div class="study-actions">
+
+      <!-- クイズ（タイピング）モード -->
+      <div id="quizArea" class="quiz-area" hidden>
+        <div class="quiz-card">
+          <span class="face-label">問題</span>
+          <button class="speak-btn" id="speakQuiz" aria-label="発音">🔊</button>
+          <p id="quizPrompt" class="face-text"></p>
+        </div>
+        <form id="quizForm" class="quiz-form" autocomplete="off">
+          <input id="quizInput" class="quiz-input" type="text" placeholder="答えを入力…"
+                 aria-label="答えを入力" enterkeyhint="done" />
+          <button type="submit" class="btn btn-primary" id="quizSubmit">答え合わせ</button>
+        </form>
+        <div id="quizFeedback" class="quiz-feedback" hidden></div>
+      </div>
+
+      <div class="study-actions" id="studyActions">
         <button id="markWrongBtn" class="btn btn-wrong">✗ まだ</button>
         <button id="flipBtn" class="btn btn-flip">⟳ めくる</button>
         <button id="markRightBtn" class="btn btn-right">✓ 覚えた</button>
       </div>
+
       <div class="study-result" id="studyResult" hidden>
+        <div class="result-emoji" id="resultEmoji">🎉</div>
         <h2>お疲れさまでした！</h2>
         <p id="studyResultText"></p>
         <div class="result-actions">
           <button id="restartWrongBtn" class="btn btn-primary" hidden>間違えた単語だけ復習</button>
-          <button id="restartAllBtn" class="btn">もう一度すべて</button>
+          <button id="restartAllBtn" class="btn">もう一度</button>
           <button id="backToDeckBtn" class="btn btn-ghost">単語帳に戻る</button>
         </div>
       </div>
+    </section>
+
+    <!-- ============ 学習統計 ============ -->
+    <section id="view-stats" class="view" hidden>
+      <div id="statsContent"></div>
     </section>
   </main>
 
@@ -92,6 +141,9 @@
       <div id="modalContent"></div>
     </div>
   </div>
+
+  <!-- ============ オンボーディング ============ -->
+  <div id="onboard" class="onboard" hidden></div>
 
   <div id="toast" class="toast" hidden></div>
 
