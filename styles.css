@@ -234,9 +234,9 @@ html, body {
 .flashcard-back .face-text { font-size: clamp(1.35rem, 5vw, 2rem); }
 .tap-hint { position: absolute; bottom: 16px; font-size: .68rem; letter-spacing: .14em; color: var(--muted); }
 
-.swipe-hint { position: absolute; top: 22px; font-size: .8rem; font-weight: 500; letter-spacing: .2em; padding: 6px 16px; border-radius: 6px; opacity: 0; pointer-events: none; transition: opacity .1s; border: 1px solid; }
-.swipe-hint-left { left: 20px; color: var(--clay); border-color: var(--clay); transform: rotate(-8deg); }
-.swipe-hint-right { right: 20px; color: var(--sage); border-color: var(--sage); transform: rotate(8deg); }
+.swipe-hint { position: absolute; top: 50%; font-size: 1.15rem; font-weight: 600; letter-spacing: .18em; padding: 9px 18px; border-radius: 8px; opacity: 0; pointer-events: none; transition: opacity .08s; border: 1.5px solid; background: var(--card); z-index: 2; }
+.swipe-hint-left { left: 22px; color: var(--clay); border-color: var(--clay); transform: translateY(-50%) rotate(-9deg); }
+.swipe-hint-right { right: 22px; color: var(--sage); border-color: var(--sage); transform: translateY(-50%) rotate(9deg); }
 
 .study-actions { display: flex; gap: 10px; width: 100%; max-width: 460px; }
 .study-actions .btn { flex: 1; padding: 15px; font-size: .92rem; letter-spacing: .08em; display: flex; align-items: center; justify-content: center; gap: 8px; }
@@ -413,8 +413,8 @@ body::after {
   transition: transform .5s cubic-bezier(.22,1,.36,1) .18s; }
 .flashcard.flipped .flashcard-back::before { transform: scaleY(1); }
 
-/* カードの浮遊（フォトキネシス） */
-.flashcard { animation: levitate 7s ease-in-out infinite; }
+/* カードの浮遊（フォトキネシス）— 外枠に適用し、内側のスワイプ変形と干渉させない */
+.flashcard-wrap { animation: levitate 7s ease-in-out infinite; }
 @keyframes levitate { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
 
 /* 光の波紋 */

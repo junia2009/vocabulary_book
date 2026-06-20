@@ -78,6 +78,7 @@
 
   // ---------- 状態 ----------
   const state = { view: 'decks', deckId: null, study: null };
+  let suppressClick = false; // スワイプ直後のタップ（めくり）誤爆を抑止
 
   const views = {
     decks: $('#view-decks'),
@@ -306,6 +307,7 @@
     fc.classList.remove('flipped');
     fc.style.transition = '';
     fc.style.transform = '';
+    fc.style.boxShadow = '';
 
     $('#studyCounter').textContent = `${s.index + 1} / ${s.cards.length}`;
     $('#studyProgressBar').style.width = Math.round((s.index / s.cards.length) * 100) + '%';
@@ -426,47 +428,61 @@
     renderDecks($('#deckSearch').value);
   }
 
-  // --- スワイプ操作（フラッシュカード） ---
+  // --- スワイプ操作（フラッシュカード）：右=覚えた / 左=まだ ---
+  const SWIPE_THRESHOLD = 110;
   function setupSwipe() {
     const fc = $('#flashcard');
-    let startX = 0, startY = 0, dx = 0, dragging = false, decided = false;
-
     const hintL = $('.swipe-hint-left');
     const hintR = $('.swipe-hint-right');
+    let startX = 0, startY = 0, dx = 0, dragging = false, decided = false, moved = false;
+
+    const clearFx = () => { hintL.style.opacity = 0; hintR.style.opacity = 0; fc.style.boxShadow = ''; };
 
     fc.addEventListener('pointerdown', (e) => {
       const s = state.study;
-      if (!s || s.mode !== 'flash' || !s.flipped) return; // めくった後だけスワイプ採点
-      dragging = true; decided = false;
+      if (!s || s.mode !== 'flash') return;
+      if (e.target.closest('.speak-btn')) return;
+      dragging = true; decided = false; moved = false;
       startX = e.clientX; startY = e.clientY; dx = 0;
-      fc.setPointerCapture(e.pointerId);
+      try { fc.setPointerCapture(e.pointerId); } catch (_) {}
       fc.style.transition = 'none';
     });
+
     fc.addEventListener('pointermove', (e) => {
       if (!dragging) return;
       dx = e.clientX - startX;
       const dy = e.clientY - startY;
-      if (!decided && Math.abs(dy) > Math.abs(dx) + 8) { dragging = false; fc.style.transform = ''; return; }
-      decided = true;
-      const rot = dx / 18;
+      if (!decided) {
+        if (Math.abs(dx) < 6 && Math.abs(dy) < 6) return;
+        if (Math.abs(dy) > Math.abs(dx) + 4) { dragging = false; fc.style.transform = ''; clearFx(); return; } // 縦スクロール
+        decided = true;
+      }
+      moved = true;
+      const rot = dx / 22;
       fc.style.transform = `translateX(${dx}px) rotate(${rot}deg)`;
-      const k = Math.min(1, Math.abs(dx) / 120);
-      hintR.style.opacity = dx > 0 ? k : 0;
-      hintL.style.opacity = dx < 0 ? k : 0;
+      const k = Math.min(1, Math.abs(dx) / SWIPE_THRESHOLD);
+      if (dx > 0) {
+        hintR.style.opacity = k; hintL.style.opacity = 0;
+        fc.style.boxShadow = `0 18px 50px rgba(143,174,151,${0.16 + 0.34 * k})`;
+      } else {
+        hintL.style.opacity = k; hintR.style.opacity = 0;
+        fc.style.boxShadow = `0 18px 50px rgba(194,145,138,${0.16 + 0.34 * k})`;
+      }
     });
+
     const end = () => {
       if (!dragging) return;
       dragging = false;
-      fc.style.transition = 'transform .3s ease';
-      hintL.style.opacity = 0; hintR.style.opacity = 0;
-      if (Math.abs(dx) > 110) {
+      fc.style.transition = 'transform .3s cubic-bezier(.22,1,.36,1)';
+      if (Math.abs(dx) > SWIPE_THRESHOLD) {
         const dir = dx > 0 ? 1 : -1;
-        fc.style.transform = `translateX(${dir * 500}px) rotate(${dir * 20}deg)`;
-        const grade = dir > 0 ? 'good' : 'again';
-        setTimeout(() => gradeCurrent(grade), 180);
+        fc.style.transform = `translateX(${dir * 540}px) rotate(${dir * 18}deg)`;
+        clearFx();
+        setTimeout(() => gradeCurrent(dir > 0 ? 'good' : 'again'), 165);
       } else {
-        fc.style.transform = '';
+        fc.style.transform = ''; clearFx();
       }
+      if (moved) { suppressClick = true; setTimeout(() => { suppressClick = false; }, 80); }
     };
     fc.addEventListener('pointerup', end);
     fc.addEventListener('pointercancel', end);
@@ -874,7 +890,7 @@
     $('#cardSearch').addEventListener('input', (e) => renderDeck(e.target.value));
 
     // 学習：フラッシュカード
-    $('#flashcard').addEventListener('click', (e) => { if (e.target.closest('.speak-btn')) return; flipCard(); });
+    $('#flashcard').addEventListener('click', (e) => { if (e.target.closest('.speak-btn') || suppressClick) return; flipCard(); });
     $('#flipBtn').addEventListener('click', flipCard);
     $('#markRightBtn').addEventListener('click', () => gradeCurrent('good'));
     $('#markWrongBtn').addEventListener('click', () => gradeCurrent('again'));
