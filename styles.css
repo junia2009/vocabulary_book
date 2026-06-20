@@ -355,3 +355,81 @@ html, body {
   .modal-actions .btn { flex: 1; }
   .stat-grid { grid-template-columns: repeat(2, 1fr); }
 }
+
+/* ============================================================
+ *  フォースの気配（背景の靄・星・光・所作）
+ * ============================================================ */
+:root, [data-theme="dark"] { --aura-1: rgba(121,166,203,0.11); --aura-2: rgba(121,166,203,0.06); --star: rgba(232,228,218,0.55); }
+[data-theme="light"] { --aura-1: rgba(63,111,151,0.06); --aura-2: rgba(63,111,151,0.035); --star: rgba(43,40,35,0.18); }
+
+#main { position: relative; z-index: 1; }
+
+/* ゆっくり呼吸する光の靄 */
+body::before {
+  content: ""; position: fixed; inset: -25%; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(38% 32% at 22% 18%, var(--aura-1), transparent 70%),
+    radial-gradient(44% 40% at 82% 82%, var(--aura-2), transparent 72%);
+  filter: blur(6px);
+  animation: aura 20s ease-in-out infinite alternate;
+}
+@keyframes aura { from { transform: translateY(0) scale(1); opacity: .7; } to { transform: translateY(-2.4%) scale(1.07); opacity: 1; } }
+
+/* かすかな星々 */
+body::after {
+  content: ""; position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: .5;
+  background-image:
+    radial-gradient(1px 1px at 12% 22%, var(--star), transparent),
+    radial-gradient(1px 1px at 28% 64%, var(--star), transparent),
+    radial-gradient(1px 1px at 44% 14%, var(--star), transparent),
+    radial-gradient(1px 1px at 58% 78%, var(--star), transparent),
+    radial-gradient(1px 1px at 72% 36%, var(--star), transparent),
+    radial-gradient(1px 1px at 86% 60%, var(--star), transparent),
+    radial-gradient(1px 1px at 18% 88%, var(--star), transparent),
+    radial-gradient(1px 1px at 64% 50%, var(--star), transparent),
+    radial-gradient(1.2px 1.2px at 36% 40%, var(--star), transparent),
+    radial-gradient(1.2px 1.2px at 90% 20%, var(--star), transparent),
+    radial-gradient(1px 1px at 8% 52%, var(--star), transparent),
+    radial-gradient(1px 1px at 52% 92%, var(--star), transparent);
+  animation: twinkle 7s ease-in-out infinite;
+}
+@keyframes twinkle { 0%, 100% { opacity: .32; } 50% { opacity: .6; } }
+[data-theme="light"] body::after { opacity: .25; }
+
+/* オリジナル紋章（円環を貫く一筋の光） */
+.emblem { width: 54px; height: 54px; color: var(--accent); display: block; margin: 0 auto;
+  animation: emblemPulse 4.5s ease-in-out infinite; }
+@keyframes emblemPulse {
+  0%, 100% { opacity: .82; filter: drop-shadow(0 0 4px var(--accent-soft)); }
+  50%      { opacity: 1;   filter: drop-shadow(0 0 11px var(--accent-line)); }
+}
+.onboard-mark .emblem { width: 66px; height: 66px; }
+.empty-mark .emblem { width: 56px; height: 56px; }
+.result-mark .emblem { width: 50px; height: 50px; }
+
+/* セーバーの発光 */
+.progress-bar { box-shadow: 0 0 7px var(--accent); }
+.flashcard-back::before { box-shadow: 0 0 11px var(--accent); transform-origin: center; transform: scaleY(0);
+  transition: transform .5s cubic-bezier(.22,1,.36,1) .18s; }
+.flashcard.flipped .flashcard-back::before { transform: scaleY(1); }
+
+/* カードの浮遊（フォトキネシス） */
+.flashcard { animation: levitate 7s ease-in-out infinite; }
+@keyframes levitate { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+
+/* 光の波紋 */
+.flashcard-wrap { position: relative; }
+.force-ripple {
+  position: absolute; left: 50%; top: 50%; width: 70px; height: 70px; margin: -35px 0 0 -35px;
+  border-radius: 50%; border: 1.5px solid var(--accent); box-shadow: 0 0 18px var(--accent);
+  transform: scale(.3); opacity: 0; pointer-events: none; z-index: 3;
+  animation: forceRipple .8s cubic-bezier(.22,1,.36,1) forwards;
+}
+.force-ripple.wrong { border-color: var(--clay); box-shadow: 0 0 14px var(--clay); }
+@keyframes forceRipple { 0% { transform: scale(.3); opacity: 0; } 18% { opacity: .6; } 100% { transform: scale(3.6); opacity: 0; } }
+
+/* 動きを抑える設定を尊重 */
+@media (prefers-reduced-motion: reduce) {
+  body::before, body::after, .emblem, .flashcard { animation: none; }
+  .force-ripple { display: none; }
+}

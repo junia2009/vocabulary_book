@@ -31,6 +31,17 @@
     try { if (navigator.vibrate) navigator.vibrate(pattern); } catch (e) { /* noop */ }
   }
 
+  // ---------- 光の波紋（フォースの所作） ----------
+  function spawnForce(kind) {
+    const wrap = $('#flashcardWrap');
+    if (!wrap || wrap.hidden) return;
+    const r = document.createElement('div');
+    r.className = 'force-ripple ' + (kind || 'good');
+    wrap.appendChild(r);
+    r.addEventListener('animationend', () => r.remove());
+    setTimeout(() => r.remove(), 900);
+  }
+
   // ---------- 発音（音声合成） ----------
   const TTS = {
     ok: 'speechSynthesis' in window,
@@ -328,6 +339,7 @@
     const card = currentCard();
     Store.review(state.deckId, card.id, grade);
     haptic(grade === 'again' ? [18, 40, 18] : 22);
+    spawnForce(grade === 'again' ? 'wrong' : 'good');
     if (grade === 'again') { s.wrong++; s.wrongIds.push(card.id); }
     else s.correct++;
     s.index++;
@@ -405,7 +417,6 @@
     $('#studyActions').hidden = true;
     const total = s.correct + s.wrong;
     const rate = total ? Math.round((s.correct / total) * 100) : 0;
-    $('#resultEmoji').textContent = '✦';
     $('#studyResultText').innerHTML =
       `${total} 語中 <strong class="ok">${s.correct}</strong> 語正解` +
       `（正答率 ${rate}%）、<strong class="ng">${s.wrong}</strong> 語まだでした。`;
@@ -798,10 +809,11 @@
   //  オンボーディング
   // ============================================================
   const SLIDES = [
-    { mark: '✦', title: 'ようこそ', text: '科目を問わず使える単語帳。ライブラリから英単語・地理・四字熟語などをワンタップで追加し、すぐに始められます。' },
-    { mark: '◐', title: '静かに、賢く', text: '間隔反復が最適な復習日を自動で計算。クイズ（タイピング）や発音読み上げにも対応しています。' },
-    { mark: '⟷', title: 'なめらかな操作', text: 'カードはタップでめくり、左右スワイプで「まだ／覚えた」を記録できます。' },
+    { title: '静けさの中に', text: '力は急がない。日々の小さな反復が、やがて確かな記憶の流れになる。ライブラリから単語帳を選べば、すぐに始められる。' },
+    { title: '流れを読む', text: '間隔反復が、復習すべき「時」を計る。あなたはただ、目の前の一語に集中すればいい。' },
+    { title: '手を伸ばす', text: 'カードに触れてめくり、左右へ払って記す。思考のままに、なめらかに。' },
   ];
+  const EMBLEM = '<svg class="emblem"><use href="#ic-emblem"/></svg>';
   function showOnboarding() {
     const el = $('#onboard');
     let i = 0;
@@ -809,7 +821,7 @@
       const s = SLIDES[i];
       el.innerHTML = `
         <div class="onboard-card">
-          <div class="onboard-mark">${s.mark}</div>
+          <div class="onboard-mark">${EMBLEM}</div>
           <h2>${s.title}</h2>
           <p>${s.text}</p>
           <div class="dots">${SLIDES.map((_, k) => `<span class="${k === i ? 'on' : ''}"></span>`).join('')}</div>
