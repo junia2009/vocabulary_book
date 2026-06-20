@@ -359,6 +359,14 @@ const Store = (() => {
     save();
   }
 
+  /** ライブラリのプリセットから単語帳を作成して返す */
+  function addPresetDeck(preset) {
+    const deck = addDeck(preset.name, preset.lang || 'en-US');
+    for (const row of preset.cards) deck.cards.push(newCard(row[0], row[1], row[2] || ''));
+    save();
+    return deck;
+  }
+
   /** サンプル単語帳を作成して返す */
   function createSampleDeck() {
     const deck = addDeck('英単語サンプル', 'en-US');
@@ -385,6 +393,6 @@ const Store = (() => {
     review, recordResult, getDueCards, resetDeckStats,
     deckProgress, streakDays, recentHistory, globalStats,
     parseCSV, importCSV, exportCSV, exportAll, importAll,
-    createSampleDeck,
+    createSampleDeck, addPresetDeck,
   };
 })();

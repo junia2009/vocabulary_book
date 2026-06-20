@@ -3,11 +3,12 @@
  *  アプリ本体（App Shell）をキャッシュし、オフラインでも起動できるようにする。
  *  ユーザーデータは localStorage 側にあるため SW では扱わない。
  * ============================================================ */
-const CACHE = 'vocab-book-v3';
+const CACHE = 'vocab-book-v4';
 const ASSETS = [
   './',
   './index.html',
   './styles.css',
+  './presets.js',
   './storage.js',
   './app.js',
   './manifest.webmanifest',

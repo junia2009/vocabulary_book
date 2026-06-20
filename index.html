@@ -38,15 +38,16 @@
     <section id="view-decks" class="view">
       <div class="toolbar">
         <input id="deckSearch" class="search" type="search" placeholder="単語帳を検索…" aria-label="単語帳を検索" />
-        <button id="addDeckBtn" class="btn btn-primary">＋ 新しい単語帳</button>
+        <button id="libraryBtn" class="btn">📚 ライブラリ</button>
+        <button id="addDeckBtn" class="btn btn-primary">＋ 新規</button>
       </div>
       <div id="deckList" class="deck-list"></div>
       <div id="deckEmpty" class="empty-state" hidden>
         <div class="empty-emoji">📚</div>
         <p>まだ単語帳がありません。<br />新しく作るか、サンプルで試してみましょう。</p>
         <div class="empty-actions">
-          <button id="emptyAddDeck" class="btn btn-primary">＋ 新しい単語帳</button>
-          <button id="emptySample" class="btn">サンプルを作成</button>
+          <button id="emptyLibrary" class="btn btn-primary">📚 ライブラリから選ぶ</button>
+          <button id="emptyAddDeck" class="btn">＋ 自分で作る</button>
         </div>
       </div>
     </section>
@@ -147,6 +148,7 @@
 
   <div id="toast" class="toast" hidden></div>
 
+  <script src="presets.js"></script>
   <script src="storage.js"></script>
   <script src="app.js"></script>
 </body>

@@ -26,6 +26,11 @@
     }, 2200);
   }
 
+  // ---------- 触覚フィードバック ----------
+  function haptic(pattern) {
+    try { if (navigator.vibrate) navigator.vibrate(pattern); } catch (e) { /* noop */ }
+  }
+
   // ---------- 発音（音声合成） ----------
   const TTS = {
     ok: 'speechSynthesis' in window,
@@ -321,6 +326,7 @@
     if (!s) return;
     const card = currentCard();
     Store.review(state.deckId, card.id, grade);
+    haptic(grade === 'again' ? [18, 40, 18] : 22);
     if (grade === 'again') { s.wrong++; s.wrongIds.push(card.id); }
     else s.correct++;
     s.index++;
@@ -697,6 +703,42 @@
     toast('書き出しました');
   }
 
+  function openLibrary() {
+    const presets = (typeof PRESETS !== 'undefined' ? PRESETS : []);
+    const items = presets
+      .map((p) => `
+        <button class="lib-item" data-preset="${p.id}">
+          <span class="lib-emoji">${p.emoji || '📘'}</span>
+          <span class="lib-text">
+            <span class="lib-name">${escapeHTML(p.name)}</span>
+            <span class="lib-desc">${escapeHTML(p.desc || '')} ・ ${p.cards.length}語</span>
+          </span>
+          <span class="lib-add">＋</span>
+        </button>`)
+      .join('');
+    openModal(
+      `
+      <h2 class="modal-title">📚 ライブラリ</h2>
+      <p class="modal-text">タップするとあなたの単語帳に追加されます。追加後は自由に編集できます。</p>
+      <div class="lib-list">${items || '<p class="muted">プリセットが読み込めませんでした。</p>'}</div>
+      <div class="modal-actions"><button class="btn btn-primary" data-close>閉じる</button></div>`,
+      (root) => {
+        $$('.lib-item', root).forEach((el) =>
+          el.addEventListener('click', () => {
+            const preset = presets.find((p) => p.id === el.dataset.preset);
+            if (!preset) return;
+            const deck = Store.addPresetDeck(preset);
+            haptic(20);
+            closeModal();
+            renderDecks();
+            openDeck(deck.id);
+            toast(`「${preset.name}」を追加しました（${preset.cards.length}語）`);
+          })
+        );
+      }
+    );
+  }
+
   function openAppMenu() {
     openModal(
       `
@@ -749,7 +791,7 @@
   //  オンボーディング
   // ============================================================
   const SLIDES = [
-    { emoji: '📚', title: 'ようこそ！', text: '科目を問わず使える単語帳アプリです。英単語・歴史・資格用語など何でもOK。' },
+    { emoji: '📚', title: 'ようこそ！', text: '科目を問わず使える単語帳アプリ。ライブラリから英単語・地理・四字熟語などをワンタップで追加して、すぐ始められます。' },
     { emoji: '🧠', title: '賢く復習', text: '間隔反復(SRS)が最適な復習日を自動で計算。クイズや発音読み上げも使えます。' },
     { emoji: '👆', title: 'かんたん操作', text: 'カードはタップでめくり、左右スワイプで「まだ／覚えた」を記録できます。' },
   ];
@@ -767,13 +809,13 @@
           <div class="onboard-actions">
             ${i < SLIDES.length - 1
               ? `<button class="btn btn-ghost" id="ob_skip">スキップ</button><button class="btn btn-primary" id="ob_next">次へ</button>`
-              : `<button class="btn" id="ob_sample">サンプルで試す</button><button class="btn btn-primary" id="ob_start">はじめる</button>`}
+              : `<button class="btn" id="ob_start">自分で作る</button><button class="btn btn-primary" id="ob_lib">📚 ライブラリから選ぶ</button>`}
           </div>
         </div>`;
       const next = $('#ob_next'); if (next) next.addEventListener('click', () => { i++; render(); });
       const skip = $('#ob_skip'); if (skip) skip.addEventListener('click', finish);
       const start = $('#ob_start'); if (start) start.addEventListener('click', finish);
-      const sample = $('#ob_sample'); if (sample) sample.addEventListener('click', () => { const d = Store.createSampleDeck(); finish(); renderDecks(); openDeck(d.id); });
+      const lib = $('#ob_lib'); if (lib) lib.addEventListener('click', () => { finish(); openLibrary(); });
     };
     const finish = () => { Store.updateSettings({ onboarded: true }); el.hidden = true; el.innerHTML = ''; renderDecks(); };
     el.hidden = false;
@@ -798,9 +840,10 @@
 
     // デッキ一覧
     $('#addDeckBtn').addEventListener('click', () => openDeckModal(null));
+    $('#libraryBtn').addEventListener('click', openLibrary);
     $('#deckSearch').addEventListener('input', (e) => renderDecks(e.target.value));
     $('#emptyAddDeck').addEventListener('click', () => openDeckModal(null));
-    $('#emptySample').addEventListener('click', () => { const d = Store.createSampleDeck(); renderDecks(); openDeck(d.id); toast('サンプルを作成しました'); });
+    $('#emptyLibrary').addEventListener('click', openLibrary);
 
     // デッキ詳細
     $('#addCardBtn').addEventListener('click', () => openCardModal(null));

@@ -303,6 +303,17 @@ html, body {
 .segmented button { flex: 1; min-width: max-content; padding: 10px 12px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text-soft); border-radius: 10px; font-size: .9rem; font-weight: 600; cursor: pointer; transition: all .15s; }
 .segmented button.active { background: linear-gradient(135deg, var(--primary), var(--violet)); color: #fff; border-color: transparent; }
 
+/* ライブラリ */
+.lib-list { display: grid; gap: 8px; margin: 4px 0 4px; }
+.lib-item { display: flex; align-items: center; gap: 12px; text-align: left; width: 100%; padding: 12px 14px; border: 1px solid var(--border); background: var(--surface-2); border-radius: 12px; cursor: pointer; transition: transform .1s, background .15s; }
+.lib-item:hover { background: var(--surface-3); transform: translateY(-1px); }
+.lib-item:active { transform: scale(0.99); }
+.lib-emoji { font-size: 1.6rem; flex-shrink: 0; }
+.lib-text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.lib-name { font-weight: 700; color: var(--text); }
+.lib-desc { font-size: .78rem; color: var(--muted); }
+.lib-add { font-size: 1.4rem; font-weight: 700; color: var(--primary); flex-shrink: 0; }
+
 /* スイッチ行 */
 .switch-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0; color: var(--text-soft); font-weight: 600; font-size: .92rem; }
 .switch-row input { width: 20px; height: 20px; accent-color: var(--primary); }
