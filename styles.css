@@ -304,6 +304,8 @@ html, body {
 .segmented button.active { background: linear-gradient(135deg, var(--primary), var(--violet)); color: #fff; border-color: transparent; }
 
 /* ライブラリ */
+.lib-section { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; font-size: .95rem; margin: 18px 0 8px; color: var(--text); }
+.lib-section span { font-size: .72rem; font-weight: 500; color: var(--muted); }
 .lib-list { display: grid; gap: 8px; margin: 4px 0 4px; }
 .lib-item { display: flex; align-items: center; gap: 12px; text-align: left; width: 100%; padding: 12px 14px; border: 1px solid var(--border); background: var(--surface-2); border-radius: 12px; cursor: pointer; transition: transform .1s, background .15s; }
 .lib-item:hover { background: var(--surface-3); transform: translateY(-1px); }

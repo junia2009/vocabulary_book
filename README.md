@@ -5,6 +5,15 @@
 
 ビルド不要の静的サイト（HTML / CSS / JavaScript のみ）なので、**GitHub Pages や Firebase Hosting にそのまま公開**でき、スマホのホーム画面に追加すればアプリのように使えます。
 
+## 📚 収録ライブラリ
+
+ワンタップで追加できる単語帳を内蔵しています（追加後は自由に編集可）。
+
+- **英単語（頻度順）**：使用頻度の高い順に約 5,900 語を 500 語ずつ収録
+- **テーマ別**：TOEIC頻出ビジネス英単語／都道府県と県庁所在地／世界の首都／四字熟語
+
+英単語データは公開ドメインの英和辞書 **[EJDict](https://github.com/kujirahand/EJDict)（Public Domain）** と、英語頻度リスト **[google-10000-english](https://github.com/first20hours/google-10000-english)** をもとに `tools/build_wordbank.py` で生成しています。
+
 ## ✨ 主な機能
 
 - **単語帳（デッキ）管理** — 用途ごとに複数の単語帳を作成・名前変更・削除

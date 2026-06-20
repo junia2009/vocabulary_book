@@ -705,38 +705,44 @@
 
   function openLibrary() {
     const presets = (typeof PRESETS !== 'undefined' ? PRESETS : []);
-    const items = presets
-      .map((p) => `
-        <button class="lib-item" data-preset="${p.id}">
-          <span class="lib-emoji">${p.emoji || '📘'}</span>
-          <span class="lib-text">
-            <span class="lib-name">${escapeHTML(p.name)}</span>
-            <span class="lib-desc">${escapeHTML(p.desc || '')} ・ ${p.cards.length}語</span>
-          </span>
-          <span class="lib-add">＋</span>
-        </button>`)
-      .join('');
-    openModal(
-      `
+    const wordbank = (typeof WORDBANK !== 'undefined' ? WORDBANK : []);
+    const all = presets.concat(wordbank);
+    const wbWords = wordbank.reduce((n, d) => n + d.cards.length, 0);
+
+    const item = (p) => `
+      <button class="lib-item" data-preset="${p.id}">
+        <span class="lib-emoji">${p.emoji || '📘'}</span>
+        <span class="lib-text">
+          <span class="lib-name">${escapeHTML(p.name)}</span>
+          <span class="lib-desc">${escapeHTML(p.desc || '')} ・ ${p.cards.length}語</span>
+        </span>
+        <span class="lib-add">＋</span>
+      </button>`;
+
+    const section = (title, sub, list) =>
+      `<h3 class="lib-section">${title}${sub ? `<span>${sub}</span>` : ''}</h3><div class="lib-list">${list.map(item).join('')}</div>`;
+
+    const html = `
       <h2 class="modal-title">📚 ライブラリ</h2>
-      <p class="modal-text">タップするとあなたの単語帳に追加されます。追加後は自由に編集できます。</p>
-      <div class="lib-list">${items || '<p class="muted">プリセットが読み込めませんでした。</p>'}</div>
-      <div class="modal-actions"><button class="btn btn-primary" data-close>閉じる</button></div>`,
-      (root) => {
-        $$('.lib-item', root).forEach((el) =>
-          el.addEventListener('click', () => {
-            const preset = presets.find((p) => p.id === el.dataset.preset);
-            if (!preset) return;
-            const deck = Store.addPresetDeck(preset);
-            haptic(20);
-            closeModal();
-            renderDecks();
-            openDeck(deck.id);
-            toast(`「${preset.name}」を追加しました（${preset.cards.length}語）`);
-          })
-        );
-      }
-    );
+      <p class="modal-text">タップで単語帳に追加。追加後は自由に編集できます。</p>
+      ${presets.length ? section('📖 テーマ別', '', presets) : ''}
+      ${wordbank.length ? section('🔤 英単語（頻度順）', `${wbWords}語を500語ずつ収録`, wordbank) : ''}
+      <div class="modal-actions"><button class="btn btn-primary" data-close>閉じる</button></div>`;
+
+    openModal(html, (root) => {
+      $$('.lib-item', root).forEach((el) =>
+        el.addEventListener('click', () => {
+          const preset = all.find((p) => p.id === el.dataset.preset);
+          if (!preset) return;
+          const deck = Store.addPresetDeck(preset);
+          haptic(20);
+          closeModal();
+          renderDecks();
+          openDeck(deck.id);
+          toast(`「${preset.name}」を追加しました（${preset.cards.length}語）`);
+        })
+      );
+    });
   }
 
   function openAppMenu() {
